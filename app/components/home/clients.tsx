@@ -1,13 +1,14 @@
 import Image, { type StaticImageData } from "next/image";
 
 import type { Dictionary } from "../../i18n/dictionaries/pt";
-import baseDigital from "@/public/images/base-digital.svg";
-import gaussian from "@/public/images/logo-gaussian.svg";
-import planetArgon from "@/public/images/planet-argon.svg";
-import unirede from "@/public/images/unirede-branco.svg";
-import vipCommerce from "@/public/images/vip-commerce.png";
+import baseDigital from "@/public/images/base-digital-dark.svg";
+import gaussian from "@/public/images/logo-gaussian.webp";
+import planetArgon from "@/public/images/planet-argon-dark.svg";
+import ppgeUfmt from "@/public/images/ppge-ufmt.png";
+import unirede from "@/public/images/unirede.svg";
+import vipCommerce from "@/public/images/vip-commerce-dark.png";
 
-type Client = { name: string; url: string; logo: StaticImageData };
+type Client = { name: string; url: string; logo: StaticImageData; tall?: boolean };
 
 const clients: readonly Client[] = [
   { name: "Planet Argon", url: "https://www.planetargon.com", logo: planetArgon },
@@ -15,6 +16,7 @@ const clients: readonly Client[] = [
   { name: "Unirede", url: "https://aunirede.org.br", logo: unirede },
   { name: "VIP Commerce", url: "https://www.vipcommerce.com.br", logo: vipCommerce },
   { name: "Gaussian", url: "https://www.gaussiansolucoes.com.br", logo: gaussian },
+  { name: "PPGE UFMT", url: "https://ppge.ufmt.br", logo: ppgeUfmt, tall: true },
 ];
 
 type Props = { copy: Dictionary["clients"] };
@@ -30,7 +32,8 @@ export function Clients({ copy }: Props) {
             {clients.map((client) => (
               <li key={client.name}>
                 <a href={client.url} className="clients__link" rel="noopener">
-                  <Image src={client.logo} alt={client.name} className="clients__logo" />
+                  <Image src={client.logo} alt={client.name} className={client.tall ? "clients__logo clients__logo--tall" : "clients__logo"}
+                  />
                 </a>
               </li>
             ))}

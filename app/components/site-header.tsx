@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import type { Dictionary } from "../i18n/dictionaries/pt";
 import type { Locale } from "../i18n/locales";
-import logo from "@/public/images/klock_marca_klock_horizontal_azul_brasao.png";
+import logo from "@/public/images/klock_marca_klock_horizontal_branco_brasao.png";
 import { LanguageSwitcher } from "./language-switcher";
 
 type Props = { locale: Locale; nav: Dictionary["nav"] };

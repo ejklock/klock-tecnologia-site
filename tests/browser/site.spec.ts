@@ -73,10 +73,10 @@ test.describe("home page", () => {
     await expect(page.getByRole("heading", { name: "Serviços" })).toHaveCount(0);
   });
 
-  test("clients show Planet Argon as a loaded logo alongside the other four", async ({ page }) => {
+  test("clients show Planet Argon as a loaded logo alongside the other five", async ({ page }) => {
     await page.goto("/en");
     const clients = page.locator("#clients");
-    for (const name of ["Planet Argon", "Base Digital", "Unirede", "VIP Commerce", "Gaussian"]) {
+    for (const name of ["Planet Argon", "Base Digital", "Unirede", "VIP Commerce", "Gaussian", "PPGE UFMT"]) {
       await expect(clients.getByRole("link", { name: new RegExp(name, "i") })).toBeVisible();
     }
     const logo = clients.getByRole("img", { name: "Planet Argon" });
@@ -218,5 +218,112 @@ test.describe("founder section", () => {
     expect(role).not.toBeNull();
     expect(bio).not.toBeNull();
     expect(bio!.y - (role!.y + role!.height)).toBeGreaterThanOrEqual(6);
+  });
+});
+
+const BRAND_BLUE = "rgb(45, 76, 156)";
+const WHITE = "rgb(255, 255, 255)";
+
+function luminance(rgb: number[]): number {
+  const weights = [0.2126, 0.7152, 0.0722];
+  return rgb.reduce((sum, channel, index) => {
+    const unit = channel / 255;
+    const linear = unit <= 0.03928 ? unit / 12.92 : ((unit + 0.055) / 1.055) ** 2.4;
+    return sum + (weights[index] ?? 0) * linear;
+  }, 0);
+}
+
+function contrastAgainstBrandBlue(color: string): number {
+  const foreground = luminance((color.match(/\d+/g) ?? []).slice(0, 3).map(Number));
+  const background = luminance([45, 76, 156]);
+  return (foreground + 0.05) / (background + 0.05);
+}
+
+test.describe("brand blue at the ends", () => {
+  for (const path of ["/pt", "/en/relent"]) {
+    test(`brand blue frames header, hero and footer on ${path}`, async ({ page }) => {
+      await page.goto(path);
+      const background = (selector: string) =>
+        page.locator(selector).first().evaluate((element) => getComputedStyle(element).backgroundColor);
+      expect(await background(".site-header")).toBe(BRAND_BLUE);
+      expect(await background(".hero")).toBe(BRAND_BLUE);
+      expect(await background(".site-footer")).toBe(BRAND_BLUE);
+      const h1 = await page.locator("h1").evaluate((element) => getComputedStyle(element).color);
+      expect(h1).toBe(WHITE);
+    });
+  }
+
+  test("brand keeps the middle sections light", async ({ page }) => {
+    await page.goto("/pt");
+    const background = await page
+      .locator("#services")
+      .evaluate((element) => getComputedStyle(element).backgroundColor);
+    expect(background).toBe("rgb(250, 250, 248)");
+  });
+
+  test("brand header navigation and language switcher are white on blue", async ({ page }) => {
+    await page.goto("/pt");
+    const colors = await page
+      .locator(".nav-links a, .lang-switch__link")
+      .evaluateAll((elements) => elements.map((element) => getComputedStyle(element).color));
+    expect(colors.length).toBeGreaterThan(0);
+    for (const color of colors) {
+      expect(contrastAgainstBrandBlue(color)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});
+
+test.describe("hero crest", () => {
+  for (const path of ["/pt", "/en/relent"]) {
+    test(`crest is drawn in the hero on ${path}`, async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(path);
+      const crest = page.locator('.hero img[src*="klock-brasao-branco"]');
+      await expect(crest).toBeVisible();
+      await expect(crest).toHaveAttribute("alt", "");
+    });
+  }
+});
+
+test.describe("clients in original colors", () => {
+  test("clients lists six loaded logos without filters", async ({ page }) => {
+    await page.goto("/en");
+    const clients = page.locator("#clients");
+    for (const name of ["Planet Argon", "Base Digital", "Unirede", "VIP Commerce", "Gaussian", "PPGE UFMT"]) {
+      const logo = clients.getByRole("img", { name });
+      await logo.scrollIntoViewIfNeeded();
+      await expect(logo).toBeVisible();
+      await expect
+        .poll(() => logo.evaluate((element: HTMLImageElement) => element.naturalWidth))
+        .toBeGreaterThan(0);
+    }
+    await expect(clients.getByRole("link", { name: "PPGE UFMT" })).toHaveAttribute("href", "https://ppge.ufmt.br");
+    const filters = await clients
+      .locator(".clients__logo")
+      .evaluateAll((elements) => elements.map((element) => getComputedStyle(element).filter));
+    expect(filters).toHaveLength(6);
+    expect(filters.filter((value) => value !== "none")).toEqual([]);
+  });
+});
+
+test.describe("PPGE logo size", () => {
+  test("PPGE UFMT renders at least 96px wide, other logos stay 32px tall, no mobile overflow", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/pt");
+    const clients = page.locator("#clients");
+    const ppge = clients.getByRole("img", { name: "PPGE UFMT" });
+    await ppge.scrollIntoViewIfNeeded();
+    const box = await ppge.boundingBox();
+    expect(box?.width ?? 0).toBeGreaterThanOrEqual(96);
+    for (const name of ["Planet Argon", "Base Digital", "Unirede", "VIP Commerce", "Gaussian"]) {
+      const other = await clients.getByRole("img", { name }).boundingBox();
+      expect(other?.height).toBeCloseTo(32, 0);
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/pt");
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
   });
 });
