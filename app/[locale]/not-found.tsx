@@ -14,7 +14,7 @@ export default function NotFound() {
     <section className="section not-found">
       <h1 className="section-title">404</h1>
       <p>{notFound.title}</p>
-      <Link href={`/${locale}`} className="btn-cta btn-cta--dark">
+      <Link href={`/${locale}`} className="btn-cta">
         {notFound.back}
       </Link>
     </section>

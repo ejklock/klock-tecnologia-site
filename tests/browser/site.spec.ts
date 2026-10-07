@@ -38,7 +38,7 @@ test.describe("locale routing", () => {
     await page.goto("/pt/relent");
     await page.getByRole("link", { name: "English" }).click();
     await expect(page).toHaveURL(/\/en\/relent$/);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("won't quit");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("follows up on pending tasks");
   });
 
   test("each page declares hreflang alternates for both languages", async ({ page }) => {
@@ -51,8 +51,10 @@ test.describe("locale routing", () => {
 test.describe("home page", () => {
   test("Portuguese home shows services, Relent, clients, founder and contact", async ({ page }) => {
     await page.goto("/pt");
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "O que fazemos" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Software sob medida, feito por quem entende do seu negócio.",
+    );
+    await expect(page.getByRole("heading", { name: "Serviços" })).toBeVisible();
     await expect(page.locator("#services .service-row")).toHaveCount(4);
     await expect(page.getByRole("link", { name: /conhecer o relent/i })).toHaveAttribute("href", "/pt/relent");
     await expect(page.getByRole("heading", { name: "Clientes" })).toBeVisible();
@@ -62,17 +64,27 @@ test.describe("home page", () => {
 
   test("English home is translated", async ({ page }) => {
     await page.goto("/en");
-    await expect(page.getByRole("heading", { name: "What we do" })).toBeVisible();
-    await expect(page.getByRole("link", { name: /meet relent/i })).toHaveAttribute("href", "/en/relent");
-    await expect(page.getByText("O que fazemos")).toHaveCount(0);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Custom software, built by people who understand your business.",
+    );
+    await expect(page.getByRole("heading", { name: "Services" })).toBeVisible();
+    await expect(page.locator("#services .service-row")).toHaveCount(4);
+    await expect(page.getByRole("link", { name: /discover relent/i })).toHaveAttribute("href", "/en/relent");
+    await expect(page.getByRole("heading", { name: "Serviços" })).toHaveCount(0);
   });
 
-  test("clients include Planet Argon alongside the existing four", async ({ page }) => {
+  test("clients show Planet Argon as a loaded logo alongside the other four", async ({ page }) => {
     await page.goto("/en");
     const clients = page.locator("#clients");
     for (const name of ["Planet Argon", "Base Digital", "Unirede", "VIP Commerce", "Gaussian"]) {
       await expect(clients.getByRole("link", { name: new RegExp(name, "i") })).toBeVisible();
     }
+    const logo = clients.getByRole("img", { name: "Planet Argon" });
+    await logo.scrollIntoViewIfNeeded();
+    await expect(logo).toBeVisible();
+    await expect
+      .poll(() => logo.evaluate((element: HTMLImageElement) => element.naturalWidth))
+      .toBeGreaterThan(0);
   });
 
   test("founder section links to GitHub, LinkedIn and email", async ({ page }) => {
@@ -97,12 +109,33 @@ test.describe("home page", () => {
 test.describe("Relent page", () => {
   test("explains the product, its principles, status and waitlist", async ({ page }) => {
     await page.goto("/en/relent");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("won't quit");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "An AI agent that follows up on pending tasks for you.",
+    );
     await expect(page.getByRole("heading", { name: "How it works" })).toBeVisible();
     await expect(page.getByText(/always says it is an AI agent/i)).toBeVisible();
-    await expect(page.getByText(/built on Claude/i)).toBeVisible();
     const waitlist = page.getByRole("link", { name: /join the waitlist/i }).first();
     await expect(waitlist).toHaveAttribute("href", new RegExp(`^mailto:${CONTACT_EMAIL}\\?subject=`));
+  });
+
+  test("Relent is bring-your-own-key in English", async ({ page }) => {
+    await page.goto("/en/relent");
+    await expect(page.getByRole("heading", { name: "Use your own key" })).toBeVisible();
+    const text = page.getByText(/your own API key/i);
+    for (const provider of ["Anthropic (Claude)", "OpenAI", "Google (Gemini)", "OpenRouter"]) {
+      await expect(text).toContainText(provider);
+    }
+    await expect(page.getByText(/Built with Claude|built on Claude/i)).toHaveCount(0);
+  });
+
+  test("Relent is bring-your-own-key in Portuguese", async ({ page }) => {
+    await page.goto("/pt/relent");
+    await expect(page.getByRole("heading", { name: "Use a sua própria chave" })).toBeVisible();
+    const text = page.getByText(/sua chave de API/i);
+    for (const provider of ["Anthropic (Claude)", "OpenAI", "Google (Gemini)", "OpenRouter"]) {
+      await expect(text).toContainText(provider);
+    }
+    await expect(page.getByText(/Feito com Claude|construído sobre o Claude/i)).toHaveCount(0);
   });
 
   test("Portuguese Relent page is translated", async ({ page }) => {
@@ -113,27 +146,6 @@ test.describe("Relent page", () => {
 });
 
 test.describe("motion and layout", () => {
-  test("parallax moves on scroll and stays still under reduced motion", async ({ browser }) => {
-    const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
-    const page = await context.newPage();
-    await page.goto("/pt");
-    await page.locator("#statement").scrollIntoViewIfNeeded();
-    await expect
-      .poll(() => page.locator("[data-parallax]").first().evaluate((element) => getComputedStyle(element).transform))
-      .not.toBe("none");
-    await context.close();
-
-    const reduced = await browser.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion: "reduce" });
-    const stillPage = await reduced.newPage();
-    await stillPage.goto("/pt");
-    await stillPage.locator("#statement").scrollIntoViewIfNeeded();
-    const transforms = await stillPage
-      .locator("[data-parallax]")
-      .evaluateAll((elements) => elements.map((element) => getComputedStyle(element).transform));
-    expect(transforms.every((transform) => transform === "none")).toBe(true);
-    await reduced.close();
-  });
-
   for (const path of ["/pt", "/en/relent"]) {
     test(`mobile ${path} has no horizontal overflow`, async ({ browser }) => {
       const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
@@ -142,6 +154,21 @@ test.describe("motion and layout", () => {
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(overflow).toBeLessThanOrEqual(1);
       await context.close();
+    });
+  }
+});
+
+test.describe("editorial layout", () => {
+  for (const path of ["/pt", "/en/relent"]) {
+    test(`${path} has none of the template devices`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page.locator("[data-parallax], .marquee, .statement")).toHaveCount(0);
+      const transforms = await page
+        .locator("h1, h2")
+        .evaluateAll((elements) => elements.map((element) => getComputedStyle(element).textTransform));
+      expect(transforms.filter((value) => value === "uppercase")).toEqual([]);
+      const align = await page.locator("h1").evaluate((element) => getComputedStyle(element).textAlign);
+      expect(align).not.toBe("center");
     });
   }
 });
@@ -181,4 +208,15 @@ test.describe("skip link", () => {
       await expect(focused).toHaveText(label);
     });
   }
+});
+
+test.describe("founder section", () => {
+  test("founder role line is separated from the bio", async ({ page }) => {
+    await page.goto("/pt");
+    const role = await page.locator("#founder .lead").boundingBox();
+    const bio = await page.locator("#founder .lead + p").boundingBox();
+    expect(role).not.toBeNull();
+    expect(bio).not.toBeNull();
+    expect(bio!.y - (role!.y + role!.height)).toBeGreaterThanOrEqual(6);
+  });
 });

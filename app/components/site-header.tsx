@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import type { Dictionary } from "../i18n/dictionaries/pt";
 import type { Locale } from "../i18n/locales";
-import logoWhite from "@/public/images/klock_marca_klock_horizontal_branco_brasao.png";
+import logo from "@/public/images/klock_marca_klock_horizontal_azul_brasao.png";
 import { LanguageSwitcher } from "./language-switcher";
 
 type Props = { locale: Locale; nav: Dictionary["nav"] };
@@ -19,9 +19,9 @@ export function SiteHeader({ locale, nav }: Props) {
 
   return (
     <header className="site-header">
-      <nav className="nav" aria-label={nav.label}>
+      <nav className="nav container" aria-label={nav.label}>
         <Link href={home} className="nav-logo" aria-label={nav.home}>
-          <Image src={logoWhite} alt="Klock Tecnologia" className="nav-logo__img" priority />
+          <Image src={logo} alt="Klock Tecnologia" className="nav-logo__img" priority />
         </Link>
         <ul className="nav-links">
           {links.map((link) => (
