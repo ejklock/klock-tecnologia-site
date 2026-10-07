@@ -1,4 +1,7 @@
+import Image from "next/image";
+
 import type { Dictionary } from "../i18n/dictionaries/pt";
+import crest from "@/public/images/klock-brasao-branco.svg";
 import { companyLinks, founderLinks, legalEntity } from "../i18n/site";
 
 type Props = { footer: Dictionary["footer"] };
@@ -9,6 +12,7 @@ export function SiteFooter({ footer }: Props) {
   return (
     <footer className="site-footer">
       <div className="container site-footer__inner">
+        <Image src={crest} alt="" className="site-footer__crest" />
         <ul className="site-footer__links">
           <li>
             <a href={founderLinks.github} rel="noopener">GitHub</a>

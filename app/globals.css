@@ -11,8 +11,11 @@
   --text: #141414;
   --muted: #5b5b5b;
   --line: #e2e2de;
-  --accent: #1e56d6;
-  --accent-deep: #123a99;
+  --accent: #2d4c9c;
+  --accent-deep: #1f3670;
+  --on-brand: #ffffff;
+  --on-brand-soft: #e3e9f7;
+  --brand-line: rgba(255, 255, 255, 0.2);
   --header-height: 4rem;
   --z-header: 100;
   --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
@@ -74,8 +77,9 @@ p {
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  background: var(--bg);
-  border-bottom: 1px solid var(--line);
+  background: var(--accent);
+  border-bottom: 1px solid var(--brand-line);
+  color: var(--on-brand);
 }
 
 .nav {
@@ -107,14 +111,15 @@ p {
 
 .nav-links a,
 .lang-switch__link {
-  color: var(--text);
+  color: var(--on-brand);
   text-decoration: none;
   font-size: 0.9375rem;
 }
 
 .nav-links a:hover,
 .lang-switch__link:hover {
-  color: var(--accent);
+  color: var(--on-brand);
+  text-decoration: underline;
 }
 
 .lang-switch {
@@ -122,14 +127,14 @@ p {
 }
 
 .lang-switch__link {
-  color: var(--muted);
+  color: var(--on-brand-soft);
 }
 
 .lang-switch__link[aria-current="true"] {
-  color: var(--text);
+  color: var(--on-brand);
   font-weight: 600;
   text-decoration: underline;
-  text-decoration-color: var(--accent);
+  text-decoration-color: var(--on-brand);
   text-underline-offset: 0.3em;
 }
 
@@ -146,7 +151,19 @@ p {
 }
 
 .hero {
+  position: relative;
+  overflow: hidden;
   padding-block: clamp(4rem, 8vw, 7rem);
+  background: var(--accent);
+  color: var(--on-brand);
+}
+
+.hero .eyebrow {
+  color: var(--on-brand-soft);
+}
+
+.hero__crest {
+  display: none;
 }
 
 .hero__title {
@@ -157,15 +174,29 @@ p {
 
 .hero__subtitle {
   margin-top: 1.5rem;
-  color: var(--muted);
+  color: var(--on-brand-soft);
   font-size: 1.1875rem;
 }
 
 .hero .btn-cta {
   margin-top: 2rem;
+  background: var(--on-brand);
+  color: var(--accent);
+}
+
+.hero .btn-cta:hover {
+  background: var(--on-brand-soft);
+  color: var(--accent-deep);
+}
+
+.site-header a:focus-visible,
+.hero a:focus-visible,
+.site-footer a:focus-visible {
+  outline-color: var(--on-brand);
 }
 
 .section {
+  background: var(--bg);
   border-top: 1px solid var(--line);
   padding-block: clamp(4rem, 8vw, 7rem);
 }
@@ -249,12 +280,14 @@ p {
   width: auto;
   max-width: 9rem;
   object-fit: contain;
-  filter: brightness(0);
-  opacity: 0.75;
+}
+
+.clients__logo--tall {
+  height: 3.25rem;
 }
 
 .clients__link:hover .clients__logo {
-  opacity: 1;
+  opacity: 0.8;
 }
 
 .founder__body {
@@ -291,10 +324,21 @@ p {
 }
 
 .site-footer {
-  border-top: 1px solid var(--line);
   padding-block: 2.5rem;
-  color: var(--muted);
+  background: var(--accent);
+  color: var(--on-brand-soft);
   font-size: 0.875rem;
+}
+
+.site-footer a,
+.site-footer a:hover {
+  color: var(--on-brand);
+}
+
+.site-footer__crest {
+  width: 2.5rem;
+  height: auto;
+  margin-bottom: 0.75rem;
 }
 
 .site-footer__inner {
@@ -329,6 +373,28 @@ p {
   .container,
   .not-found {
     padding-inline: 2rem;
+  }
+
+  .hero__crest {
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin-block: auto;
+    right: max(2rem, calc((100% - 72rem) / 2 + 2rem));
+    width: auto;
+    height: 15rem;
+    opacity: 0.22;
+    pointer-events: none;
+  }
+
+  .hero .eyebrow,
+  .hero__subtitle {
+    max-width: min(65ch, calc(100% - 17rem));
+  }
+
+  .hero__title {
+    max-width: min(20ch, calc(100% - 17rem));
   }
 
   .section__grid {

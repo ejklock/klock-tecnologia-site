@@ -1,6 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import crest from "@/public/images/klock-brasao-branco.svg";
 import { Clients } from "../components/home/clients";
 import { Founder } from "../components/home/founder";
 import { NumberedList } from "../components/numbered-list";
@@ -24,6 +26,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
   return (
     <>
       <section id="hero" className="hero">
+        <Image src={crest} alt="" className="hero__crest" priority />
         <div className="container">
           <h1 className="hero__title">{t.hero.title}</h1>
           <p className="hero__subtitle">{t.hero.subtitle}</p>

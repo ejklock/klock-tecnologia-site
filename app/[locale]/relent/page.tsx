@@ -1,5 +1,7 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
+import crest from "@/public/images/klock-brasao-branco.svg";
 import { Steps } from "../../components/steps";
 import { getDictionary } from "../../i18n/get-dictionary";
 import { isLocale } from "../../i18n/locales";
@@ -21,6 +23,7 @@ export default async function RelentPage({ params }: PageProps<"/[locale]/relent
   return (
     <>
       <section className="hero">
+        <Image src={crest} alt="" className="hero__crest" priority />
         <div className="container">
           <p className="eyebrow">{t.eyebrow}</p>
           <h1 className="hero__title">{t.title}</h1>
