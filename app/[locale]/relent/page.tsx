@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 
-import { ParallaxLayer } from "../../components/parallax-layer";
 import { Steps } from "../../components/steps";
 import { getDictionary } from "../../i18n/get-dictionary";
 import { isLocale } from "../../i18n/locales";
@@ -21,10 +20,9 @@ export default async function RelentPage({ params }: PageProps<"/[locale]/relent
 
   return (
     <>
-      <section className="hero hero--relent">
-        <ParallaxLayer speed={0.08} className="hero__bg" />
-        <div className="hero__inner">
-          <p className="eyebrow eyebrow--light">{t.eyebrow}</p>
+      <section className="hero">
+        <div className="container">
+          <p className="eyebrow">{t.eyebrow}</p>
           <h1 className="hero__title">{t.title}</h1>
           <p className="hero__subtitle">{t.subtitle}</p>
           <a href={waitlistHref} className="btn-cta">
@@ -33,40 +31,62 @@ export default async function RelentPage({ params }: PageProps<"/[locale]/relent
         </div>
       </section>
 
-      <section className="section narrow">
-        <h2 className="section-title">{t.problem.title}</h2>
-        <p className="section-lead section-lead--dark">{t.problem.text}</p>
-      </section>
-
-      <section className="section section--ink">
-        <h2 className="section-title">{t.how.title}</h2>
-        <Steps steps={t.how.steps} />
-        <p className="section-lead">{t.channels}</p>
+      <section className="section">
+        <div className="container section__grid">
+          <h2 className="section-title">{t.problem.title}</h2>
+          <div className="section__body">
+            <p>{t.problem.text}</p>
+          </div>
+        </div>
       </section>
 
       <section className="section">
-        <h2 className="section-title">{t.principles.title}</h2>
-        <ul className="cards">
-          {t.principles.items.map((item) => (
-            <li key={item.title} className="cards__item">
-              <h3 className="cards__title">{item.title}</h3>
-              <p className="cards__text">{item.text}</p>
-            </li>
-          ))}
-        </ul>
+        <div className="container section__grid">
+          <h2 className="section-title">{t.how.title}</h2>
+          <div className="section__body">
+            <Steps steps={t.how.steps} />
+            <p>{t.channels}</p>
+          </div>
+        </div>
       </section>
 
-      <section className="section section--accent narrow">
-        <h2 className="section-title">{t.claude.title}</h2>
-        <p className="section-lead">{t.claude.text}</p>
+      <section className="section">
+        <div className="container section__grid">
+          <h2 className="section-title">{t.principles.title}</h2>
+          <div className="section__body">
+            <ul className="rows">
+              {t.principles.items.map((item) => (
+                <li key={item.title} className="row">
+                  <div>
+                    <h3 className="row__title">{item.title}</h3>
+                    <p className="row__text">{item.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </section>
 
-      <section className="section section--ink narrow">
-        <h2 className="section-title">{t.status.title}</h2>
-        <p className="section-lead">{t.status.text}</p>
-        <a href={waitlistHref} className="btn-cta">
-          {t.waitlist}
-        </a>
+      <section className="section">
+        <div className="container section__grid">
+          <h2 className="section-title">{t.byok.title}</h2>
+          <div className="section__body">
+            <p>{t.byok.text}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container section__grid">
+          <h2 className="section-title">{t.status.title}</h2>
+          <div className="section__body">
+            <p>{t.status.text}</p>
+            <a href={waitlistHref} className="btn-cta">
+              {t.waitlist}
+            </a>
+          </div>
+        </div>
       </section>
     </>
   );

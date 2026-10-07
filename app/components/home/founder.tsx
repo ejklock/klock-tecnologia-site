@@ -14,27 +14,27 @@ export function Founder({ copy }: Props) {
   ];
 
   return (
-    <section id="founder" className="section founder">
-      <div className="founder__inner">
-        <Image src={portrait} alt={copy.name} className="founder__portrait" sizes="(min-width: 768px) 280px, 60vw" />
+    <section id="founder" className="section">
+      <div className="container section__grid">
         <div>
           <p className="eyebrow">{copy.eyebrow}</p>
-          <h2 className="founder__name">{copy.name}</h2>
-          <p className="founder__role">{copy.role}</p>
-          <p className="founder__bio">{copy.bio}</p>
-          <ul className="founder__links">
-            {links.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  className="pill-link"
-                  rel={link.href.startsWith("mailto:") ? undefined : "noopener"}
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <h2 className="section-title">{copy.name}</h2>
+        </div>
+        <div className="section__body founder__body">
+          <Image src={portrait} alt={copy.name} className="founder__portrait" sizes="(min-width: 768px) 220px, 60vw" />
+          <div>
+            <p className="lead">{copy.role}</p>
+            <p>{copy.bio}</p>
+            <ul className="founder__links">
+              {links.map((link) => (
+                <li key={link.href}>
+                  <a href={link.href} rel={link.href.startsWith("mailto:") ? undefined : "noopener"}>
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>

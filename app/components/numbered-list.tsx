@@ -1,18 +1,18 @@
 type Item = { title: string; text: string };
 
-type Props = { items: readonly Item[]; tone?: "paper" | "ink" };
+type Props = { items: readonly Item[] };
 
-export function NumberedList({ items, tone = "paper" }: Props) {
+export function NumberedList({ items }: Props) {
   return (
-    <ol className={`numbered-list numbered-list--${tone}`}>
+    <ol className="rows">
       {items.map((item, index) => (
-        <li key={item.title} className="service-row">
-          <span className="service-row__number" aria-hidden="true">
+        <li key={item.title} className="row service-row">
+          <span className="row__number" aria-hidden="true">
             {String(index + 1).padStart(2, "0")}
           </span>
           <div>
-            <h3 className="service-row__title">{item.title}</h3>
-            <p className="service-row__text">{item.text}</p>
+            <h3 className="row__title">{item.title}</h3>
+            <p className="row__text">{item.text}</p>
           </div>
         </li>
       ))}

@@ -4,14 +4,16 @@ type Props = { steps: readonly Step[] };
 
 export function Steps({ steps }: Props) {
   return (
-    <ol className="steps">
+    <ol className="rows">
       {steps.map((step, index) => (
-        <li key={step.title} className="steps__item">
-          <span className="steps__index" aria-hidden="true">
+        <li key={step.title} className="row">
+          <span className="row__number" aria-hidden="true">
             {index + 1}
           </span>
-          <h3 className="steps__title">{step.title}</h3>
-          <p className="steps__text">{step.text}</p>
+          <div>
+            <h3 className="row__title">{step.title}</h3>
+            <p className="row__text">{step.text}</p>
+          </div>
         </li>
       ))}
     </ol>
