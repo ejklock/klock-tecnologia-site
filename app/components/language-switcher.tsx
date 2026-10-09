@@ -5,13 +5,13 @@ import { usePathname } from "next/navigation";
 
 import { localeNames, locales, swapPathLocale, type Locale } from "../i18n/locales";
 
-type Props = { current: Locale; label: string };
+type Props = { current: Locale; label: string; className?: string };
 
-export function LanguageSwitcher({ current, label }: Props) {
+export function LanguageSwitcher({ current, label, className }: Props) {
   const pathname = usePathname();
 
   return (
-    <ul className="lang-switch mono" aria-label={label}>
+    <ul className={className ? `lang-switch mono ${className}` : "lang-switch mono"} aria-label={label}>
       {locales.map((locale) => (
         <li key={locale} className="lang-switch__item">
           <Link

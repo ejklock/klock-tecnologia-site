@@ -8,6 +8,7 @@ export const en: Dictionary = {
   },
   nav: {
     label: "Main navigation",
+    menu: "Menu",
     services: "Services",
     products: "Products",
     openSource: "Open source",
