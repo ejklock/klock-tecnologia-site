@@ -1,21 +1,20 @@
 type Step = { title: string; text: string };
 
-type Props = { steps: readonly Step[] };
+type Props = { steps: readonly Step[]; prefix?: string };
 
-export function Steps({ steps }: Props) {
+export function Steps({ steps, prefix }: Props) {
   return (
-    <ol className="rows">
-      {steps.map((step, index) => (
-        <li key={step.title} className="row">
-          <span className="row__number" aria-hidden="true">
-            {index + 1}
-          </span>
-          <div>
-            <h3 className="row__title">{step.title}</h3>
-            <p className="row__text">{step.text}</p>
-          </div>
-        </li>
-      ))}
+    <ol className="steps">
+      {steps.map((step, index) => {
+        const number = String(index + 1).padStart(2, "0");
+        return (
+          <li key={step.title} className="steps__item">
+            <span className="steps__number mono">{prefix === undefined ? number : `${prefix} ${number}`}</span>
+            <h3 className="steps__title">{step.title}</h3>
+            <p className="steps__text">{step.text}</p>
+          </li>
+        );
+      })}
     </ol>
   );
 }
