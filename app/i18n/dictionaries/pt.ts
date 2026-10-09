@@ -6,6 +6,7 @@ export const pt = {
   },
   nav: {
     label: "Navegação principal",
+    menu: "Menu",
     services: "Serviços",
     products: "Produtos",
     openSource: "Open source",

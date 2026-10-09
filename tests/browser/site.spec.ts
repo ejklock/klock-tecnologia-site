@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const CONTACT_EMAIL = "evaldo@klocktecnologia.com";
 
@@ -1463,5 +1463,308 @@ test.describe("v2 llms", () => {
     const links = [...body.matchAll(/\]\(([^)]*)\)/g)].map((match) => match[1] ?? "");
     expect(links.length).toBeGreaterThan(14);
     for (const link of links) expect(link).toMatch(/^https:\/\//);
+  });
+});
+
+test.describe("mobile menu", () => {
+  const BREAKPOINT_PX = 912;
+  const SECTION_ANCHORS = ["services", "products", "opensource", "about", "contact"];
+  const locales = [
+    { locale: "pt", cta: "Falar com a gente", language: "Idioma" },
+    { locale: "en", cta: "Talk to us", language: "Language" },
+  ];
+
+  for (const { locale, cta, language } of locales) {
+    test.describe(`on /${locale}`, () => {
+      test("at 390px the bar is one row with logo, language switcher and a collapsed menu toggle", async ({ page }) => {
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.goto(`/${locale}`);
+        const header = page.getByRole("banner");
+        const toggle = header.getByRole("button", { name: "Menu" });
+        await expect(toggle).toBeVisible();
+        await expect(toggle).toHaveAttribute("aria-expanded", "false");
+        await expect(header.getByRole("img", { name: "Klock Tecnologia" })).toBeVisible();
+        await expect(header.getByRole("list", { name: language })).toBeVisible();
+        await expect(header.locator("ul.nav-links")).toBeHidden();
+        await expect(header.getByRole("link", { name: cta, exact: true })).toBeHidden();
+        expect((await header.boundingBox())?.height).toBeLessThanOrEqual(72);
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+        expect(overflow).toBeLessThanOrEqual(1);
+      });
+
+      test("at 1440px the desktop row is on one line and the toggle is hidden", async ({ page }) => {
+        await page.setViewportSize({ width: 1440, height: 900 });
+        await page.goto(`/${locale}`);
+        const header = page.getByRole("banner");
+        await expect(header.getByRole("button", { name: "Menu" })).toBeHidden();
+        const targets = [
+          header.getByRole("img", { name: "Klock Tecnologia" }),
+          header.locator("ul.nav-links"),
+          header.getByRole("list", { name: language }),
+          header.getByRole("link", { name: cta, exact: true }),
+        ];
+        const centers: number[] = [];
+        for (const target of targets) {
+          await expect(target).toBeVisible();
+          const box = await target.boundingBox();
+          centers.push((box?.y ?? 0) + (box?.height ?? 0) / 2);
+        }
+        for (const center of centers) {
+          expect(Math.abs(center - (centers[0] ?? 0))).toBeLessThanOrEqual(1);
+        }
+      });
+
+      test("the desktop row shows at the breakpoint width and the toggle shows one pixel below it", async ({ page }) => {
+        const header = page.getByRole("banner");
+        await page.setViewportSize({ width: BREAKPOINT_PX, height: 900 });
+        await page.goto(`/${locale}`);
+        await expect(header.getByRole("button", { name: "Menu" })).toBeHidden();
+        await expect(header.locator("ul.nav-links")).toBeVisible();
+        expect((await header.boundingBox())?.height).toBeLessThanOrEqual(72);
+
+        await page.setViewportSize({ width: BREAKPOINT_PX - 1, height: 900 });
+        await expect(header.getByRole("button", { name: "Menu" })).toBeVisible();
+        await expect(header.locator("ul.nav-links")).toBeHidden();
+      });
+
+      test("at 320px the bar is one row with no horizontal overflow", async ({ page }) => {
+        await page.setViewportSize({ width: 320, height: 640 });
+        await page.goto(`/${locale}`);
+        const header = page.getByRole("banner");
+        await expect(header.getByRole("button", { name: "Menu" })).toBeVisible();
+        expect((await header.boundingBox())?.height).toBeLessThanOrEqual(72);
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+        expect(overflow).toBeLessThanOrEqual(1);
+      });
+
+      test("the toggle is at least 44px square and the page logs no console error", async ({ page }) => {
+        const problems: string[] = [];
+        page.on("console", (message) => {
+          if (message.type() === "error" || message.type() === "warning") problems.push(message.text());
+        });
+        page.on("pageerror", (error) => problems.push(error.message));
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.goto(`/${locale}`);
+        const toggle = page.getByRole("banner").getByRole("button", { name: "Menu" });
+        const box = await toggle.boundingBox();
+        expect(box?.width).toBeGreaterThanOrEqual(44);
+        expect(box?.height).toBeGreaterThanOrEqual(44);
+        await toggle.click();
+        await expect(toggle).toHaveAttribute("aria-expanded", "true");
+        expect(problems).toEqual([]);
+      });
+    });
+  }
+
+  test("the server HTML carries the collapsed toggle without running scripts", async ({ request }) => {
+    const html = await (await request.get("/pt")).text();
+    expect(html).toMatch(/<button[^>]*aria-expanded="false"[^>]*>/);
+  });
+
+  test.describe("opening and closing at 390px", () => {
+    test.beforeEach(async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/pt");
+    });
+
+    test("the toggle opens a panel with the five links and the CTA and Tab reaches the first link", async ({ page }) => {
+      const header = page.getByRole("banner");
+      const toggle = header.getByRole("button", { name: "Menu" });
+      await toggle.click();
+      await expect(toggle).toHaveAttribute("aria-expanded", "true");
+      const panelId = await toggle.getAttribute("aria-controls");
+      const panel = page.locator(`[id="${panelId}"]`);
+      const links = panel.locator("ul.nav-links").getByRole("link");
+      await expect(links).toHaveText(["Serviços", "Produtos", "Open source", "Sobre", "Contato"]);
+      const hrefs = await links.evaluateAll((elements) => elements.map((a) => a.getAttribute("href")));
+      expect(hrefs).toEqual(SECTION_ANCHORS.map((anchor) => `/pt#${anchor}`));
+      await expect(panel.getByRole("link", { name: "Falar com a gente", exact: true })).toBeVisible();
+
+      await toggle.focus();
+      await page.keyboard.press("Tab");
+      await expect(links.first()).toBeFocused();
+    });
+
+    test("Escape closes the panel and returns focus to the toggle", async ({ page }) => {
+      const header = page.getByRole("banner");
+      const toggle = header.getByRole("button", { name: "Menu" });
+      await toggle.click();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Escape");
+      await expect(toggle).toHaveAttribute("aria-expanded", "false");
+      await expect(header.locator("ul.nav-links")).toBeHidden();
+      await expect(toggle).toBeFocused();
+    });
+
+    test("pressing the toggle twice closes the panel", async ({ page }) => {
+      const header = page.getByRole("banner");
+      const toggle = header.getByRole("button", { name: "Menu" });
+      await toggle.click();
+      await toggle.click();
+      await expect(toggle).toHaveAttribute("aria-expanded", "false");
+      await expect(header.locator("ul.nav-links")).toBeHidden();
+    });
+
+    test("choosing a section link closes the panel and shows the section below the header", async ({ page }) => {
+      const header = page.getByRole("banner");
+      const toggle = header.getByRole("button", { name: "Menu" });
+      await toggle.click();
+      await header.getByRole("link", { name: "Serviços" }).click();
+      await expect(toggle).toHaveAttribute("aria-expanded", "false");
+      await expect(header.locator("ul.nav-links")).toBeHidden();
+      const headerBottom = (await header.boundingBox())?.height ?? 0;
+      await expect
+        .poll(async () => {
+          const top = (await page.locator("#services").boundingBox())?.y ?? -1;
+          return top >= headerBottom - 1 && top < 844;
+        })
+        .toBe(true);
+    });
+
+    test("switching language with the panel open lands on /en with the panel closed", async ({ page }) => {
+      const header = page.getByRole("banner");
+      await header.getByRole("button", { name: "Menu" }).click();
+      await header.getByRole("link", { name: "English" }).click();
+      await expect(page).toHaveURL(/\/en$/);
+      await expect(header.getByRole("button", { name: "Menu" })).toHaveAttribute("aria-expanded", "false");
+      await expect(header.locator("ul.nav-links")).toBeHidden();
+    });
+
+    test("widening to desktop with the panel open shows the plain desktop row", async ({ page }) => {
+      const header = page.getByRole("banner");
+      await header.getByRole("button", { name: "Menu" }).click();
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await expect(header.getByRole("button", { name: "Menu" })).toBeHidden();
+      await expect(header.locator("ul.nav-links")).toBeVisible();
+      expect((await header.boundingBox())?.height).toBeLessThanOrEqual(72);
+    });
+
+    test("the keyboard-focused toggle shows an outline that differs from the header background", async ({ page }) => {
+      const toggle = page.getByRole("banner").getByRole("button", { name: "Menu" });
+      await toggle.click();
+      await page.keyboard.press("Shift+Tab");
+      await page.keyboard.press("Tab");
+      await expect(toggle).toBeFocused();
+      const outline = await toggle.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return { color: style.outlineColor, width: style.outlineWidth, style: style.outlineStyle };
+      });
+      expect(outline.style).not.toBe("none");
+      expect(parseFloat(outline.width)).toBeGreaterThan(0);
+      expect(outline.color).toBe("rgb(255, 255, 255)");
+    });
+
+    test("the panel stays closed after widening to desktop and narrowing again", async ({ page }) => {
+      const header = page.getByRole("banner");
+      const toggle = header.getByRole("button", { name: "Menu" });
+      await toggle.click();
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.setViewportSize({ width: 390, height: 844 });
+      await expect(toggle).toHaveAttribute("aria-expanded", "false");
+      await expect(header.locator("ul.nav-links")).toBeHidden();
+    });
+
+    test("the panel stays open while resizing within the mobile range", async ({ page }) => {
+      const header = page.getByRole("banner");
+      const toggle = header.getByRole("button", { name: "Menu" });
+      await toggle.click();
+      await page.setViewportSize({ width: BREAKPOINT_PX - 1, height: 844 });
+      await expect(toggle).toHaveAttribute("aria-expanded", "true");
+      await expect(header.locator("ul.nav-links")).toBeVisible();
+    });
+
+    test("widening to exactly the breakpoint width and back leaves the panel closed", async ({ page }) => {
+      const header = page.getByRole("banner");
+      const toggle = header.getByRole("button", { name: "Menu" });
+      await toggle.click();
+      await page.setViewportSize({ width: BREAKPOINT_PX, height: 844 });
+      await page.setViewportSize({ width: 390, height: 844 });
+      await expect(toggle).toHaveAttribute("aria-expanded", "false");
+      await expect(header.locator("ul.nav-links")).toBeHidden();
+    });
+  });
+
+  for (const { locale, cta } of locales) {
+    test.describe(`keyboard order on /${locale}`, () => {
+      const languageNames = ["Português", "English"];
+      const focused = (page: Page) =>
+        page.evaluate(() => {
+          const element = document.activeElement as HTMLElement | null;
+          return {
+            text: element?.getAttribute("aria-label") ?? element?.textContent?.trim() ?? "",
+            left: element?.getBoundingClientRect().left ?? -1,
+            inHeader: !!element?.closest("header"),
+          };
+        });
+
+      const tabThrough = async (page: Page, steps: number) => {
+        const visited = [];
+        for (let step = 0; step < steps; step += 1) {
+          await page.keyboard.press("Tab");
+          visited.push(await focused(page));
+        }
+        return visited;
+      };
+
+      test("at 1440px Tab visits the section links, the language links and the CTA left to right", async ({ page }) => {
+        await page.setViewportSize({ width: 1440, height: 900 });
+        await page.goto(`/${locale}`);
+        const header = page.getByRole("banner");
+        const sections = await header.locator("ul.nav-links a").allTextContents();
+        expect(sections).toHaveLength(5);
+        await header.locator("a.nav-logo").focus();
+        const visited = await tabThrough(page, 8);
+        expect(visited.map((item) => item.text)).toEqual([...sections, ...languageNames, cta]);
+        for (let index = 1; index < visited.length; index += 1) {
+          expect(visited[index]?.left).toBeGreaterThan(visited[index - 1]?.left ?? 0);
+        }
+      });
+
+      test("at 390px with the panel closed Tab visits the language links then the toggle only", async ({ page }) => {
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.goto(`/${locale}`);
+        const header = page.getByRole("banner");
+        await header.locator("a.nav-logo").focus();
+        const visited = await tabThrough(page, 4);
+        expect(visited.slice(0, 3).map((item) => item.text)).toEqual([...languageNames, "Menu"]);
+        expect(visited[3]?.inHeader).toBe(false);
+      });
+
+      test("at 390px with the panel open Tab from the toggle visits the five links then the CTA", async ({ page }) => {
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.goto(`/${locale}`);
+        const header = page.getByRole("banner");
+        await header.getByRole("button", { name: "Menu" }).click();
+        const expected = await header.locator("ul.nav-links a").allTextContents();
+        const visited = await tabThrough(page, 6);
+        expect(visited.map((item) => item.text)).toEqual([...expected, cta]);
+      });
+
+      for (const width of [390, 1440]) {
+        test(`at ${width}px each language link resolves to one element`, async ({ page }) => {
+          await page.setViewportSize({ width, height: 900 });
+          await page.goto(`/${locale}`);
+          const header = page.getByRole("banner");
+          for (const name of languageNames) await expect(header.getByRole("link", { name })).toHaveCount(1);
+        });
+      }
+    });
+  }
+
+  test("at 1440px the desktop gaps are 32px and 20px with no negative margin on the switcher", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/pt");
+    const header = page.getByRole("banner");
+    const lastLink = (await header.locator("ul.nav-links a").last().boundingBox())!;
+    const firstLang = (await header.getByRole("link", { name: "Português" }).boundingBox())!;
+    const lastLang = (await header.getByRole("link", { name: "English" }).boundingBox())!;
+    const cta = (await header.getByRole("link", { name: "Falar com a gente", exact: true }).boundingBox())!;
+    expect(Math.abs(firstLang.x - (lastLink.x + lastLink.width) - 32)).toBeLessThanOrEqual(1);
+    expect(Math.abs(cta.x - (lastLang.x + lastLang.width) - 20)).toBeLessThanOrEqual(1);
+    const margins = await header.getByRole("list", { name: "Idioma" }).evaluate((element) => {
+      const style = getComputedStyle(element);
+      return [style.marginLeft, style.marginRight];
+    });
+    expect(margins).toEqual(["0px", "0px"]);
   });
 });
