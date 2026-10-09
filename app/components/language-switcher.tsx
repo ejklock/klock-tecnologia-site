@@ -11,9 +11,9 @@ export function LanguageSwitcher({ current, label }: Props) {
   const pathname = usePathname();
 
   return (
-    <ul className="lang-switch" aria-label={label}>
+    <ul className="lang-switch mono" aria-label={label}>
       {locales.map((locale) => (
-        <li key={locale}>
+        <li key={locale} className="lang-switch__item">
           <Link
             href={swapPathLocale(pathname, locale)}
             hrefLang={locale}

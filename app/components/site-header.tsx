@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import type { Dictionary } from "../i18n/dictionaries/pt";
 import type { Locale } from "../i18n/locales";
+import { mailto } from "../i18n/site";
 import logo from "@/public/images/klock_marca_klock_horizontal_branco_brasao.png";
 import { LanguageSwitcher } from "./language-switcher";
 
@@ -12,7 +13,8 @@ export function SiteHeader({ locale, nav }: Props) {
   const home = `/${locale}`;
   const links = [
     { href: `${home}#services`, label: nav.services },
-    { href: `${home}/relent`, label: nav.relent },
+    { href: `${home}#products`, label: nav.products },
+    { href: `${home}#opensource`, label: nav.openSource },
     { href: `${home}#about`, label: nav.about },
     { href: `${home}#contact`, label: nav.contact },
   ];
@@ -30,7 +32,12 @@ export function SiteHeader({ locale, nav }: Props) {
             </li>
           ))}
         </ul>
-        <LanguageSwitcher current={locale} label={nav.language} />
+        <div className="nav__actions">
+          <LanguageSwitcher current={locale} label={nav.language} />
+          <a href={mailto()} className="btn btn--primary btn--sm">
+            {nav.cta}
+          </a>
+        </div>
       </nav>
     </header>
   );

@@ -23,22 +23,25 @@ type Props = { copy: Dictionary["clients"] };
 
 export function Clients({ copy }: Props) {
   return (
-    <section id="clients" className="section">
-      <div className="container section__grid">
-        <h2 className="section-title">{copy.title}</h2>
-        <div className="section__body">
-          <p>{copy.subtitle}</p>
-          <ul className="clients__grid">
-            {clients.map((client) => (
-              <li key={client.name}>
-                <a href={client.url} className="clients__link" rel="noopener">
-                  <Image src={client.logo} alt={client.name} className={client.tall ? "clients__logo clients__logo--tall" : "clients__logo"}
-                  />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+    <section id="clients" className="clients" aria-label={copy.label}>
+      <div className="container">
+        <p className="clients__strip mono-label">
+          <span>{copy.strip}</span>
+          <span>{copy.regions}</span>
+        </p>
+        <ul className="clients__grid">
+          {clients.map((client) => (
+            <li key={client.name} className="clients__item">
+              <a href={client.url} className="clients__link" rel="noopener">
+                <Image
+                  src={client.logo}
+                  alt={client.name}
+                  className={client.tall ? "clients__logo clients__logo--tall" : "clients__logo"}
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
