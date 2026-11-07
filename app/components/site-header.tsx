@@ -14,6 +14,7 @@ export function SiteHeader({ locale, nav }: Props) {
   const home = `/${locale}`;
   const links = [
     { href: `${home}#services`, label: nav.services },
+    { href: `${home}#security`, label: nav.security },
     { href: `${home}#products`, label: nav.products },
     { href: `${home}#opensource`, label: nav.openSource },
     { href: `${home}#about`, label: nav.about },
