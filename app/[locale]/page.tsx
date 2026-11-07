@@ -6,6 +6,7 @@ import { Hero } from "../components/home/hero";
 import { LiveClocks } from "../components/home/live-clocks";
 import { OpenSource } from "../components/home/open-source";
 import { Products } from "../components/home/products";
+import { Security } from "../components/home/security";
 import { NumberedList } from "../components/numbered-list";
 import { SectionLabel } from "../components/section-label";
 import { Steps } from "../components/steps";
@@ -42,12 +43,13 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         </div>
       </section>
 
+      <Security copy={t.security} />
       <Products copy={t.products} locale={locale} />
       <OpenSource copy={t.openSource} />
 
       <section id="process" className="band band--alt">
         <div className="container">
-          <SectionLabel index="04">{t.process.label}</SectionLabel>
+          <SectionLabel index="05">{t.process.label}</SectionLabel>
           <h2 className="section-heading section-heading--spaced">{t.process.title}</h2>
           <Steps steps={t.process.steps} prefix={t.process.stepPrefix} />
         </div>
@@ -55,7 +57,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
 
       <section id="about" className="band">
         <div className="container">
-          <SectionLabel index="05">{t.about.label}</SectionLabel>
+          <SectionLabel index="06">{t.about.label}</SectionLabel>
           <div className="about">
             <div>
               <h2 className="section-heading">{t.about.title}</h2>
@@ -76,7 +78,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
 
       <section id="contact" className="band band--brand band--closing">
         <div className="container">
-          <SectionLabel index="06" onBrand>
+          <SectionLabel index="07" onBrand>
             {t.contact.label}
           </SectionLabel>
           <h2 className="display-title contact__title">{t.contact.title}</h2>

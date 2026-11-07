@@ -10,6 +10,7 @@ export const en: Dictionary = {
     label: "Main navigation",
     menu: "Menu",
     services: "Services",
+    security: "Security",
     products: "Products",
     openSource: "Open source",
     relent: "Relent",
@@ -98,6 +99,46 @@ export const en: Dictionary = {
         tags: ["Instagram", "Reels · Shorts", "YouTube"],
       },
     ],
+  },
+  security: {
+    label: "Security",
+    title: "Security built into engineering, not bolted on.",
+    intro:
+      "Secure code review, vulnerability identification and remediation, and patch validation — across the products we build and the client systems we maintain under contract.",
+    items: [
+      {
+        title: "Secure development",
+        text: "Secure defaults from the first commit: code review, dependency management and continuous checks for known vulnerabilities in the pipeline.",
+        tagsLabel: "Practices",
+        tags: ["Code review", "Dependencies", "CI"],
+      },
+      {
+        title: "Vulnerability identification and remediation",
+        text: "Dependency and code scanning, triage by severity and fixes with patch validation and tests before shipping.",
+        tagsLabel: "Areas",
+        tags: ["OSV / CVE", "Triage", "Patch validation"],
+      },
+      {
+        title: "Hardening and response",
+        text: "Configuration hardening, secrets management and response to security alerts, with a dedicated point of contact.",
+        tagsLabel: "Areas",
+        tags: ["Hardening", "Secrets", "LGPD"],
+      },
+    ],
+    tools: {
+      label: "Open security tooling",
+      text: "We publish what we use every day:",
+      repos: [
+        {
+          name: "deep-health",
+          text: "OSV/CVE scanning with safe dependency updates and test-backed validation.",
+        },
+        {
+          name: "claude-secret-mask",
+          text: "Masks secrets before they reach the model.",
+        },
+      ],
+    },
   },
   products: {
     label: "Products",

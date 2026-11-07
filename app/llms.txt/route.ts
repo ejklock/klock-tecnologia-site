@@ -11,7 +11,7 @@ const PAGE_LABELS = {
 } as const;
 
 function buildLlmsTxt(): string {
-  const { products, relent, openSource, services, about, contact } = en;
+  const { products, relent, openSource, services, security, about, contact } = en;
   const providers = relent.byok.providers.map((provider) => provider.name).join(", ");
 
   const lines = [
@@ -24,6 +24,16 @@ function buildLlmsTxt(): string {
     "## Services",
     "",
     ...services.items.map((item) => `- **${item.title}**: ${item.text}`),
+    "",
+    "## Security",
+    "",
+    security.intro,
+    "",
+    ...security.items.map((item) => `- **${item.title}**: ${item.text}`),
+    "",
+    ...security.tools.repos.map(
+      (repo) => `- [${repo.name}](${founderLinks.github}/${repo.name}): ${repo.text}`,
+    ),
     "",
     "## Products",
     "",

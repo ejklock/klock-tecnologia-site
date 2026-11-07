@@ -8,6 +8,7 @@ export const pt = {
     label: "Navegação principal",
     menu: "Menu",
     services: "Serviços",
+    security: "Segurança",
     products: "Produtos",
     openSource: "Open source",
     relent: "Relent",
@@ -96,6 +97,46 @@ export const pt = {
         tags: ["Instagram", "Reels · Shorts", "YouTube"],
       },
     ],
+  },
+  security: {
+    label: "Segurança",
+    title: "Segurança como parte da engenharia, não um extra.",
+    intro:
+      "Revisão de segurança de código, identificação e correção de vulnerabilidades e validação de patches — nos produtos que construímos e nos sistemas de clientes que mantemos sob contrato.",
+    items: [
+      {
+        title: "Desenvolvimento seguro",
+        text: "Padrões seguros desde o primeiro commit: revisão de código, gestão de dependências e checagem contínua de vulnerabilidades conhecidas no pipeline.",
+        tagsLabel: "Práticas",
+        tags: ["Code review", "Dependências", "CI"],
+      },
+      {
+        title: "Identificação e correção de vulnerabilidades",
+        text: "Varredura de dependências e de código, triagem por severidade e correção com validação do patch e testes antes de subir.",
+        tagsLabel: "Áreas",
+        tags: ["OSV / CVE", "Triagem", "Patch validation"],
+      },
+      {
+        title: "Hardening e resposta",
+        text: "Endurecimento de configuração, gestão de segredos e resposta a alertas de segurança, com ponto de contato dedicado.",
+        tagsLabel: "Áreas",
+        tags: ["Hardening", "Segredos", "LGPD"],
+      },
+    ],
+    tools: {
+      label: "Ferramentas abertas de segurança",
+      text: "Publicamos o que usamos no dia a dia:",
+      repos: [
+        {
+          name: "deep-health",
+          text: "Varredura OSV/CVE com atualização segura de dependências e validação por testes.",
+        },
+        {
+          name: "claude-secret-mask",
+          text: "Mascaramento de segredos antes de chegarem ao modelo.",
+        },
+      ],
+    },
   },
   products: {
     label: "Produtos",

@@ -435,15 +435,15 @@ test.describe("v2 header", () => {
   const cases = [
     {
       locale: "pt",
-      links: ["Serviços", "Produtos", "Open source", "Sobre", "Contato"],
+      links: ["Serviços", "Segurança", "Produtos", "Open source", "Sobre", "Contato"],
       cta: "Falar com a gente",
     },
-    { locale: "en", links: ["Services", "Products", "Open source", "About", "Contact"], cta: "Talk to us" },
+    { locale: "en", links: ["Services", "Security", "Products", "Open source", "About", "Contact"], cta: "Talk to us" },
   ];
-  const anchors = ["services", "products", "opensource", "about", "contact"];
+  const anchors = ["services", "security", "products", "opensource", "about", "contact"];
 
   for (const { locale, links, cta } of cases) {
-    test(`header on /${locale} has the five links, the CTA, the logo and the switcher`, async ({ page }) => {
+    test(`header on /${locale} has the six links, the CTA, the logo and the switcher`, async ({ page }) => {
       await page.goto(`/${locale}`);
       const header = page.getByRole("banner");
       const nav = header.locator("ul.nav-links");
@@ -482,7 +482,7 @@ test.describe("v2 footer", () => {
       path: "/pt",
       tagline: "Desenvolvimento de software sob medida para empresas no Brasil e nos Estados Unidos.",
       label: "Rodapé",
-      links: ["Serviços", "Produtos", "↳ Relent", "Open source", "Sobre", "Contato"],
+      links: ["Serviços", "Segurança", "Produtos", "↳ Relent", "Open source", "Sobre", "Contato"],
       relent: "/pt/relent",
       rights: "Todos os direitos reservados.",
     },
@@ -490,7 +490,7 @@ test.describe("v2 footer", () => {
       path: "/en/relent",
       tagline: "Custom software development for companies in Brazil and the United States.",
       label: "Footer",
-      links: ["Services", "Products", "↳ Relent", "Open source", "About", "Contact"],
+      links: ["Services", "Security", "Products", "↳ Relent", "Open source", "About", "Contact"],
       relent: "/en/relent",
       rights: "All rights reserved.",
     },
@@ -802,6 +802,70 @@ test.describe("v2 services", () => {
       await expect(row).not.toHaveCSS("background-color", "rgb(255, 255, 255)");
       await row.hover();
       await expect(row).toHaveCSS("background-color", "rgb(255, 255, 255)");
+    });
+  }
+});
+
+test.describe("v2 security", () => {
+  const cases = [
+    {
+      locale: "pt",
+      label: "Segurança",
+      title: "Segurança como parte da engenharia, não um extra.",
+      intro:
+        "Revisão de segurança de código, identificação e correção de vulnerabilidades e validação de patches — nos produtos que construímos e nos sistemas de clientes que mantemos sob contrato.",
+      rows: [
+        ["Desenvolvimento seguro", "Práticas", 3],
+        ["Identificação e correção de vulnerabilidades", "Áreas", 3],
+        ["Hardening e resposta", "Áreas", 3],
+      ],
+      toolsLabel: "Ferramentas abertas de segurança",
+    },
+    {
+      locale: "en",
+      label: "Security",
+      title: "Security built into engineering, not bolted on.",
+      intro:
+        "Secure code review, vulnerability identification and remediation, and patch validation — across the products we build and the client systems we maintain under contract.",
+      rows: [
+        ["Secure development", "Practices", 3],
+        ["Vulnerability identification and remediation", "Areas", 3],
+        ["Hardening and response", "Areas", 3],
+      ],
+      toolsLabel: "Open security tooling",
+    },
+  ] as const;
+
+  const tools = [
+    ["deep-health", "https://github.com/ejklock/deep-health"],
+    ["claude-secret-mask", "https://github.com/ejklock/claude-secret-mask"],
+  ] as const;
+
+  for (const c of cases) {
+    test(`v2 security on /${c.locale}: label, title, three practices and the open tools`, async ({ page }) => {
+      await page.goto(`/${c.locale}`);
+      const security = page.locator("#security");
+      await expect(security.getByText("§02", { exact: true })).toBeVisible();
+      await expect(security.getByText(c.label, { exact: true })).toBeVisible();
+      await expect(security.getByRole("heading", { level: 2 })).toHaveText(c.title);
+      await expect(security.getByText(c.intro, { exact: true })).toBeVisible();
+
+      const rows = security.locator(".service-row");
+      await expect(rows).toHaveCount(3);
+      await expect(security.getByRole("heading", { level: 3 })).toHaveText(c.rows.map(([title]) => title));
+      for (const [index, [, tagsLabel, count]] of c.rows.entries()) {
+        await expect(rows.nth(index).getByRole("list", { name: tagsLabel }).getByRole("listitem")).toHaveCount(count);
+      }
+
+      await expect(security.getByText(c.toolsLabel, { exact: true })).toBeVisible();
+      const cards = security.locator(".security-tools li > a");
+      await expect(cards).toHaveCount(2);
+      for (const [index, [name, href]] of tools.entries()) {
+        const card = cards.nth(index);
+        await expect(card).toHaveAttribute("href", href);
+        await expect(card).toHaveAttribute("rel", /noopener/);
+        await expect(card.getByText(name, { exact: true })).toBeVisible();
+      }
     });
   }
 });

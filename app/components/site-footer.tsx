@@ -27,6 +27,9 @@ export function SiteFooter({ locale, nav, footer }: Props) {
                 <Link href={`${home}#services`}>{nav.services}</Link>
               </li>
               <li>
+                <Link href={`${home}#security`}>{nav.security}</Link>
+              </li>
+              <li>
                 <Link href={`${home}#products`}>{nav.products}</Link>
               </li>
               <li>

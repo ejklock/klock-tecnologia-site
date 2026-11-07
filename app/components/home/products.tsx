@@ -10,7 +10,7 @@ export function Products({ copy, locale }: Props) {
   return (
     <section id="products" className="band band--flush-top">
       <div className="container">
-        <SectionLabel index="02">{copy.label}</SectionLabel>
+        <SectionLabel index="03">{copy.label}</SectionLabel>
         <div className="section-head">
           <h2 className="section-heading">{copy.title}</h2>
           <p className="section-head__intro">{copy.intro}</p>

@@ -11,7 +11,7 @@ export function OpenSource({ copy }: Props) {
   return (
     <section id="opensource" className="band band--flush-top">
       <div className="container">
-        <SectionLabel index="03">{copy.label}</SectionLabel>
+        <SectionLabel index="04">{copy.label}</SectionLabel>
         <div className="section-head">
           <h2 className="section-heading">{copy.title}</h2>
           <div className="section-head__aside">

@@ -1009,6 +1009,25 @@ p {
   color: var(--on-brand-muted-2);
 }
 
+.security-tools {
+  margin-top: 2.25rem;
+}
+
+.security-tools__label {
+  color: var(--muted);
+}
+
+.security-tools__text {
+  margin-top: 0.5rem;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.security-tools .repo-grid {
+  margin-top: 1.25rem;
+}
+
 .repo-grid {
   list-style: none;
   display: grid;
